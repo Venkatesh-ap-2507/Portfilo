@@ -1,0 +1,50 @@
+"""
+Logging Configuration
+=====================
+Structured logging using loguru for the application.
+"""
+
+import sys
+from loguru import logger
+from app.config import get_settings
+
+
+def setup_logging() -> None:
+    """Configure application logging with loguru."""
+    settings = get_settings()
+
+    # Remove default logger
+    logger.remove()
+
+    # Console logging
+    logger.add(
+        sys.stdout,
+        level=settings.LOG_LEVEL,
+        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
+               "<level>{level: <8}</level> | "
+               "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | "
+               "<level>{message}</level>",
+        colorize=True,
+    )
+
+    # File logging (production)
+    if settings.is_production:
+        logger.add(
+            "logs/app.log",
+            level="INFO",
+            format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} | {message}",
+            rotation="10 MB",
+            retention="30 days",
+            compression="gz",
+        )
+        logger.add(
+            "logs/error.log",
+            level="ERROR",
+            format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} | {message}",
+            rotation="10 MB",
+            retention="90 days",
+            compression="gz",
+        )
+
+    logger.info(
+        f"Logging configured | Level: {settings.LOG_LEVEL} | Env: {settings.APP_ENV}")

@@ -1,0 +1,4 @@
+# Backend SSL placeholder
+# Place your SSL certificates here:
+# - fullchain.pem
+# - privkey.pem
